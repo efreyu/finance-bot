@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#IDE
+.idea
+.vc
+
+# temp files
+token.pickle
+credentials.json
+parseSettings.json
