@@ -22,14 +22,12 @@ def parseSheet():
     findDiapason = get_setting('findDiapason')
     listPage = get_setting('listPage')
     # parse rules:
-    # - parse categories
     # - data
     # - category
+    # - calc income
+    # - calc currencies
+    # - print to page
     data = {}
-    # data.append("2020")
-    # data
-    # sheetName = get_sheet_name_by_id(spreadsheet_id, 1)
-    # cats = parseData(spreadsheet_id, sheetName + "!A2:A")
     for page in get_setting('pages'):
         pageName = get_sheet_name_by_id(spreadsheet_id, page['id'])
         pageData = parseData(spreadsheet_id, pageName + "!" + findDiapason)
@@ -37,9 +35,9 @@ def parseSheet():
             if not item[0] in data:
                 data[item[0]] = {}
             if not item[2] in data[item[0]]:
-                data[item[0]] = {item[2]: float(item[1])}
+                data[item[0]][item[2]] = float(item[1])
             else:
-                data[item[0]] = {item[2]: float(data[item[0]][item[2]]) + float(item[1])}
+                data[item[0]][item[2]] = float(data[item[0]][item[2]]) + float(item[1])
     test = ""
         # data.append()
 
