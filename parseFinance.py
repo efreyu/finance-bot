@@ -30,7 +30,7 @@ def parseSheet():
     # - data - done
     # - category - done
     # - calc start value - done
-    # - calc income
+    # - calc income - done
     # - calc currencies - done
     # - print to page
     # sheetName = get_sheet_name_by_id(spreadsheet_id, 1)
@@ -60,23 +60,28 @@ def parseSheet():
             else:
                 data[pageCur][datetime_key][item[2]] = float(data[pageCur][datetime_key][item[2]]) + float(item[1])
     result = {}
+    total = {}
     for cur in data:
         if not cur in result:
             result[cur] = {}
+            total[cur] = {}
         keylist = data[cur].keys()
         for key in sorted(keylist):
             row = data[cur][key]
             month = datetime(key.year, key.month, 1)
             if not month in result[cur]:
                 result[cur][month] = {}
+                total[cur][month] = float()
             cats = row.keys()
             for cat in sorted(cats):
                 if not cat in result[cur][month]:
                     result[cur][month][cat] = row[cat]
                 else:
-                    result[cur][month][cat] = result[cur][month][cat] + row[cat]
-                # if cat == incomeCat:
-                # else:
+                    result[cur][month][cat] += row[cat]
+                if cat in incomeCats:
+                    total[cur][month] += row[cat]
+                else:
+                    total[cur][month] -= row[cat]
 
 
     test = ""
