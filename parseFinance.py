@@ -5,6 +5,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import json
+from datetime import datetime
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -20,11 +21,14 @@ def get_setting(name):
 def parseSheet():
     spreadsheet_id = get_setting('spreadsheetId')
     findDiapason = get_setting('findDiapason')
-    listPage = get_setting('listPage')
+    listPage = get_sheet_name_by_id(spreadsheet_id, get_setting('listPage'))
+    incomeCat = parseData(spreadsheet_id, listPage + "!G2")[0][0]
+    incomeDate = parseData(spreadsheet_id, listPage + "!G4")[0][0]
+    datetime_income = datetime.strptime(incomeDate, '%Y-%m-%d')
     # parse rules:
     # - data - done
     # - category - done
-    # - calc start value
+    # - calc start value - done
     # - calc income
     # - calc currencies - done
     # - print to page
@@ -35,15 +39,26 @@ def parseSheet():
         pageName = get_sheet_name_by_id(spreadsheet_id, page['id'])
         pageData = parseData(spreadsheet_id, pageName + "!" + findDiapason)
         pageCur = parseData(spreadsheet_id, pageName + "!F2")[0][0]
+        if not pageCur in data:
+            data[pageCur] = {}
+        startBalance = parseData(spreadsheet_id, pageName + "!F1")[0][0]
+        if startBalance:
+            startBalance = float(startBalance)
+        if not datetime_income in data[pageCur]:
+            data[pageCur][datetime_income] = {}
+        if not incomeCat in data[pageCur][datetime_income]:
+            data[pageCur][datetime_income][incomeCat] = startBalance
+        else:
+            data[pageCur][datetime_income][incomeCat] = float(data[pageCur][datetime_income][incomeCat]) + startBalance
         for item in pageData:
-            if not pageCur in data:
-                data[pageCur] = {}
-            if not item[0] in data[pageCur]:
-                data[pageCur][item[0]] = {}
-            if not item[2] in data[pageCur][item[0]]:
-                data[pageCur][item[0]][item[2]] = float(item[1])
+            datetime_key = datetime.strptime(item[0], '%Y-%m-%d')
+            if not datetime_key in data[pageCur]:
+                data[pageCur][datetime_key] = {}
+            if not item[2] in data[pageCur][datetime_key]:
+                data[pageCur][datetime_key][item[2]] = float(item[1])
             else:
-                data[pageCur][item[0]][item[2]] = float(data[pageCur][item[0]][item[2]]) + float(item[1])
+                data[pageCur][datetime_key][item[2]] = float(data[pageCur][datetime_key][item[2]]) + float(item[1])
+        # data[pageCur] = sorted(data[pageCur])
     test = ""
         # data.append()
 
