@@ -23,7 +23,8 @@ def parseSheet():
     findDiapason = get_setting('findDiapason')
     listPage = get_sheet_name_by_id(spreadsheet_id, get_setting('listPage'))
     incomeCat = parseData(spreadsheet_id, listPage + "!G2")[0][0]
-    incomeDate = parseData(spreadsheet_id, listPage + "!G4")[0][0]
+    incomeCats = parseData(spreadsheet_id, listPage + "!G2:G")
+    incomeDate = parseData(spreadsheet_id, listPage + "!F2")[0][0]
     datetime_income = datetime.strptime(incomeDate, '%Y-%m-%d')
     # parse rules:
     # - data - done
@@ -58,9 +59,27 @@ def parseSheet():
                 data[pageCur][datetime_key][item[2]] = float(item[1])
             else:
                 data[pageCur][datetime_key][item[2]] = float(data[pageCur][datetime_key][item[2]]) + float(item[1])
-        # data[pageCur] = sorted(data[pageCur])
+    result = {}
+    for cur in data:
+        if not cur in result:
+            result[cur] = {}
+        keylist = data[cur].keys()
+        for key in sorted(keylist):
+            row = data[cur][key]
+            month = datetime(key.year, key.month, 1)
+            if not month in result[cur]:
+                result[cur][month] = {}
+            cats = row.keys()
+            for cat in sorted(cats):
+                if not cat in result[cur][month]:
+                    result[cur][month][cat] = row[cat]
+                else:
+                    result[cur][month][cat] = result[cur][month][cat] + row[cat]
+                # if cat == incomeCat:
+                # else:
+
+
     test = ""
-        # data.append()
 
 
 def parseData(spreadsheetId, findRange):
